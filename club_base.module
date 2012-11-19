@@ -188,7 +188,7 @@ function club_base_cron() {
     // This is a silly example of a cron job.
     // It just makes it obvious that the job has run without
     // making any changes to your database.
-    club_ base_interface();
+//    club_base_interface();
     watchdog('club_base', 'club_base interface ran');
     if (!empty($GLOBALS['club_base_show_status_message'])) {
       drupal_set_message(t('club_base executed at %time', array('%time' => date_iso8601(time(0)))));
