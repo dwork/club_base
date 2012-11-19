@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * The installation instructions for the Club Membership base 
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+ function club_base_install() {
+ }
+/**
+ * @file
+ */
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function club_base_uninstall() {
+}  //  End of club_base_uninstall
+
