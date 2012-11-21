@@ -40,6 +40,36 @@ function club_base_menu() {
   return $items;
 }
 
+/*
+ * club_base_get_chapter
+ * function to retrieve chapter based on logged in user
+ */
+function club_base_get_chapter() {
+  global $user;
+  $node = user_load($user->uid);
+
+  // If the user's chapter is set, return it
+  if (isset($node->field_chapter['und'][0]['target_id'])) {  // logged in user
+    return $node->field_chapter['und'][0]['target_id'];
+
+  // else if the attendance module is installed and the default field_chapter is set, return it
+  } elseif (function_exists('attendance_get_config')) {  // attendance module installed
+    $config = attendance_get_config();
+    if (isset($config->field_chapter['und'][0]['target_id'])) {
+      return $config->field_chapter['und'][0]['target_id'];
+    }
+  }
+
+  // No user chapter & no default; so, get the first Chapter/club record
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'chapter');
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return current(array_keys($result['node']));
+  }
+}
+
 /**
  * The form to provide a link to cron.php.
  */
@@ -188,7 +218,7 @@ function club_base_cron() {
     // This is a silly example of a cron job.
     // It just makes it obvious that the job has run without
     // making any changes to your database.
-//    club_base_interface();
+    club_base_interface();
     watchdog('club_base', 'club_base interface ran');
     if (!empty($GLOBALS['club_base_show_status_message'])) {
       drupal_set_message(t('club_base executed at %time', array('%time' => date_iso8601(time(0)))));

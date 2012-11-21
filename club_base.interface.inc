@@ -15,9 +15,10 @@ function club_base_interface () {
 /*
  * club_base_get_chapter
  * function to retrieve chapter based on logged in user
-function club_base_get_chapter () {
+function ___club_base_get_chapter() {
   global $user;
   $node = user_load($user->uid);
+dsm($node);
   if (isset($node->field_chapter['und'][0]['target_id'])) {  // logged in user
     return $node->field_chapter['und'][0]['target_id'];
   } elseif (function_exists('attendance_get_config')) {  // attendance module installed
