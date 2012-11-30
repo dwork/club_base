@@ -1,7 +1,7 @@
 name = Club Base
 description = Base/common procedures required for Club modules
 core = 7.x
-package = Club Membership
+package = Club
 configure = admin/config/system/club_membership
 files[] = club_base.module
 files[] = club_base.interface.inc

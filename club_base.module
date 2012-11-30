@@ -70,6 +70,84 @@ function club_base_get_chapter() {
   }
 }
 
+
+/**
+ * Return concatenated user names, given the user profile
+ */
+function club_base_user_name ($user) {
+  // first ' ' middle ' ' last ' ' suffix
+  $name = '';
+
+  // First Name
+    if (isset($user->field_first_name['und'])) {
+       $name .= $user->field_first_name['und'][0]['value'] . ' ';
+    }
+
+  // Middle Name
+    if (isset($user->field_middle_initial['und'])) {
+       $name .= $user->field_middle_initial['und'][0]['value'] . ' ';
+    }
+
+  // Last Name
+    if (isset($user->field_last_name['und'])) {
+       $name .= $user->field_last_name['und'][0]['value'] . ' ';
+    }
+
+  // Suffix
+    if (isset($user->field_suffix['und'])) {
+       $name .= $user->field_suffix['und'][0]['value'] . ' ';
+    }
+  
+  return $name;
+}
+
+/**
+ * Retreive field collection item "phone" for a particular user
+ * returns an array of phone numbers including the phone, the type and the location
+ */
+function club_base_get_phone ($uid) {
+
+  $profile = profile2_load_by_user($uid,'main');
+  $fieldset = 'field_contact_phone';
+  $key1 = 'field_phone';
+  $key2 = 'field_phone_type';
+  $key3 = 'field_phone_location';
+
+  $phones = field_get_items('profile2', $profile, $fieldset);
+
+  $ph = array();
+  if (!empty($phones)) {
+    foreach ($phones as $phone) {
+      if (!empty($phone['value'])) {
+        $field_collection = field_collection_field_get_entity($phone['value']);
+        if ($field_collection) {
+          $line = array();
+
+          $items = field_get_items('field_collection_item', $field_collection, $key1);
+          if ($items) {
+             $item = reset($items);
+             $number = substr($item['number'],0,3).'-'.substr($item['number'],3,3).'-'.substr($item['number'],6,4);
+             $line['number'] = substr($item['number'],0,3).'-'.substr($item['number'],3,3).'-'.substr($item['number'],6,4);
+          }
+
+          $items = field_get_items('field_collection_item', $field_collection, $key2);
+          if ($items) {
+             $item = reset($items);
+             $line['type'] = ' '.taxonomy_term_load($item['tid'])->name;
+          }
+
+          $items = field_get_items('field_collection_item', $field_collection, $key3);
+          if ($items) {
+             $item = reset($items);
+             $line['location'] = ' '.taxonomy_term_load($item['tid'])->name;
+          }
+        }
+        $ph[] = $line;
+      }
+    }
+  }
+  return $ph;
+}
 /**
  * The form to provide a link to cron.php.
  */
