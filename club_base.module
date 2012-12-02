@@ -1,6 +1,11 @@
 <?php
 
 require ('club_base.interface.inc');
+require ('club_base.functions.inc');
+
+// if attendance modules is installed
+require ('club_base.attendance.includes.inc');
+require ('club_base.attendance.functions.inc');
 
 /**
  * @file
@@ -40,114 +45,6 @@ function club_base_menu() {
   return $items;
 }
 
-/*
- * club_base_get_chapter
- * function to retrieve chapter based on logged in user
- */
-function club_base_get_chapter() {
-  global $user;
-  $node = user_load($user->uid);
-
-  // If the user's chapter is set, return it
-  if (isset($node->field_chapter['und'][0]['target_id'])) {  // logged in user
-    return $node->field_chapter['und'][0]['target_id'];
-
-  // else if the attendance module is installed and the default field_chapter is set, return it
-  } elseif (function_exists('attendance_get_config')) {  // attendance module installed
-    $config = attendance_get_config();
-    if (isset($config->field_chapter['und'][0]['target_id'])) {
-      return $config->field_chapter['und'][0]['target_id'];
-    }
-  }
-
-  // No user chapter & no default; so, get the first Chapter/club record
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')
-            ->entityCondition('bundle', 'chapter');
-  $result = $query->execute();
-  if (isset($result['node'])) {
-    return current(array_keys($result['node']));
-  }
-}
-
-
-/**
- * Return concatenated user names, given the user profile
- */
-function club_base_user_name ($user) {
-  // first ' ' middle ' ' last ' ' suffix
-  $name = '';
-
-  // First Name
-    if (isset($user->field_first_name['und'])) {
-       $name .= $user->field_first_name['und'][0]['value'] . ' ';
-    }
-
-  // Middle Name
-    if (isset($user->field_middle_initial['und'])) {
-       $name .= $user->field_middle_initial['und'][0]['value'] . ' ';
-    }
-
-  // Last Name
-    if (isset($user->field_last_name['und'])) {
-       $name .= $user->field_last_name['und'][0]['value'] . ' ';
-    }
-
-  // Suffix
-    if (isset($user->field_suffix['und'])) {
-       $name .= $user->field_suffix['und'][0]['value'] . ' ';
-    }
-  
-  return $name;
-}
-
-/**
- * Retreive field collection item "phone" for a particular user
- * returns an array of phone numbers including the phone, the type and the location
- */
-function club_base_get_phone ($uid) {
-
-  $profile = profile2_load_by_user($uid,'main');
-  $fieldset = 'field_contact_phone';
-  $key1 = 'field_phone';
-  $key2 = 'field_phone_type';
-  $key3 = 'field_phone_location';
-
-  $phones = field_get_items('profile2', $profile, $fieldset);
-
-  $ph = array();
-  if (!empty($phones)) {
-    foreach ($phones as $phone) {
-      if (!empty($phone['value'])) {
-        $field_collection = field_collection_field_get_entity($phone['value']);
-        if ($field_collection) {
-          $line = array();
-
-          $items = field_get_items('field_collection_item', $field_collection, $key1);
-          if ($items) {
-             $item = reset($items);
-             $number = substr($item['number'],0,3).'-'.substr($item['number'],3,3).'-'.substr($item['number'],6,4);
-             $line['number'] = substr($item['number'],0,3).'-'.substr($item['number'],3,3).'-'.substr($item['number'],6,4);
-          }
-
-          $items = field_get_items('field_collection_item', $field_collection, $key2);
-          if ($items) {
-             $item = reset($items);
-             $line['type'] = ' '.taxonomy_term_load($item['tid'])->name;
-          }
-
-          $items = field_get_items('field_collection_item', $field_collection, $key3);
-          if ($items) {
-             $item = reset($items);
-             $line['location'] = ' '.taxonomy_term_load($item['tid'])->name;
-          }
-        }
-        $ph[] = $line;
-      }
-    }
-  }
-  return $ph;
-}
 /**
  * The form to provide a link to cron.php.
  */
@@ -185,38 +82,31 @@ function club_base_form($form, &$form_state) {
     );
   }
 
-  $form['cron_queue_setup'] = array(
+  // Set the default chapter. If this is set, it overrides the user's chapter
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+            ->propertyCondition('status',1)
+            ->entityCondition('bundle', 'chapter');
+  $result = $query->execute();
+  $option = array();
+  if (isset($result['node'])) {
+    foreach(array_keys($result['node']) as $key) {
+      $node = node_load($key);
+      $option[$key] = $node->title;
+    };
+  }
+  $option[] = 'None';
+
+  $form['default_chapter'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Cron queue setup (for hook_cron_queue_info(), etc.)'),
+    '#title' => t('Configuration of default chapter'),
   );
-  $queue_1 = DrupalQueue::get('club_base_queue_1');
-  $queue_2 = DrupalQueue::get('club_base_queue_2');
-  $form['cron_queue_setup']['current_cron_queue_status'] = array(
-    '#markup' => '<div>' . t('There are currently %queue_1 items in queue 1 and %queue_2 items in queue 2',
-      array(
-        '%queue_1' => $queue_1->numberOfItems(),
-        '%queue_2' => $queue_2->numberOfItems(),
-      )) . '</div>',
-  );
-  $form['cron_queue_setup']['num_items'] = array(
+  $form['default_chapter']['chapter'] = array(
     '#type' => 'select',
-    '#title' => t('Number of items to add to queue'),
-    '#options' => drupal_map_assoc(array(1, 5, 10, 100, 1000)),
-    '#default_value' => 5,
-  );
-  $form['cron_queue_setup']['queue'] = array(
-    '#type' => 'radios',
-    '#title' => t('Queue to add items to'),
-    '#options' => array(
-      'club_base_queue_1' => t('Queue 1'),
-      'club_base_queue_2' => t('Queue 2'),
-    ),
-    '#default_value' => 'club_base_queue_1',
-  );
-  $form['cron_queue_setup']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Add jobs to queue'),
-    '#submit' => array('club_base_add_jobs_to_queue'),
+    '#title' => t('Default Chapter'),
+    '#description' => t('Default chapter, or NONE'),
+    '#default_value' => variable_get('club_default_chapter', 'None'),
+    '#options' => $option,
   );
 
   $form['configuration'] = array(
