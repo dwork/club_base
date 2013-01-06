@@ -89,25 +89,42 @@ function club_base_form($form, &$form_state) {
             ->entityCondition('bundle', 'chapter');
   $result = $query->execute();
   $option = array();
+  $defaults = array();
+  $option['None'] = 'None';
   if (isset($result['node'])) {
     foreach(array_keys($result['node']) as $key) {
       $node = node_load($key);
       $option[$key] = $node->title;
+      $defaults[$key] = $node->title;
     };
   }
-  $option[] = 'None';
 
   $form['default_chapter'] = array(
     '#type' => 'fieldset',
     '#title' => t('Configuration of default chapter'),
   );
-  $form['default_chapter']['chapter'] = array(
+  $form['default_chapter']['club_default_chapter'] = array(
     '#type' => 'select',
     '#title' => t('Default Chapter'),
     '#description' => t('Default chapter, or NONE'),
     '#default_value' => variable_get('club_default_chapter', 'None'),
     '#options' => $option,
   );
+
+  // Set a chapter to obtain defaults from
+  if (variable_get('club_default_chapter') == 'None') {
+    $form['no_chapter_defaults'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Configuration of defaults if "None" is selected'),
+    );
+    $form['default_chapter']['no_chapter_defaults'] = array(
+      '#type' => 'select',
+      '#title' => t('Chapter Defaults if "None" selected'),
+      '#description' => t('Chapter Defaults if "None" selected'),
+      '#default_value' => variable_get('no_chapter_defaults',variable_get('club_default_chapter')),
+      '#options' => $defaults,
+    );
+  }
 
   $form['configuration'] = array(
     '#type' => 'fieldset',
@@ -117,7 +134,7 @@ function club_base_form($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Cron interval'),
     '#description' => t('Time after which club_base_cron will respond to a processing request.'),
-    '#default_value' => variable_get('club_base_interval', 60*60),
+    '#default_value' => variable_get('club_base_interval', 60*60*24),
     '#options' => array(
       60 => t('1 minute'),
       300 => t('5 minutes'),

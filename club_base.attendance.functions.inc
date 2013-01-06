@@ -47,7 +47,7 @@ function attendance_tid_gettid ($vname, $name, $operator = '=') {
   if ($result) {
     $keys = array_keys($result['taxonomy_term']);
   } else {
-    drupal_set_message(t('Error: rets_bsf_gettid (includes): Taxonomy term not found -- vname: '. $vname .'; name: '.$name));
+    drupal_set_message(t('Error: attendance_tid_gettid (includes): Taxonomy term not found -- vname: '. $vname .'; name: '.$name));
     return '';
   }
   return $keys;

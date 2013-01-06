@@ -13,6 +13,83 @@
   * If the filters aren't entered, default to the values in $config
   */
 function club_base_form_alter(&$form, &$form_state, $form_id) {
+  // Club views
+    if ($form_id == 'views_exposed_form' && ($form['#action'] == '/clubmembers')) {
+
+      // Get the attendance config for status inclusions (used to determine which classifications are loaded)
+	$config = attendance_get_config();
+
+      // Reset the size of the name field
+	$form['field_last_name_value']['#size']="15";
+
+      // Get the list of Chapters
+ 	$options = $defaults = array();
+ 	$query = new EntityFieldQuery();
+  	$query->entityCondition('entity_type', 'node')
+	    ->propertyCondition('status',1)
+            ->entityCondition('bundle', 'chapter');
+  	$result = $query->execute();
+
+  	if (isset($result['node'])) {
+	    $count = count(array_keys($result['node']));
+	    ($count > 3) ? $counter = 3 : $counter = $count+1;
+	    $options[''] = '--All--';
+    	    foreach (array_keys($result['node']) as $k) {
+		$node = node_load($k);
+		$options[$k] = $node->title;
+		if ($count == 1) {
+		    $defaults[$k] = $node->title;
+	 	} else if ($k == variable_get('club_default_chapter')) {
+		    $defaults[$k] = $node->title;
+		}
+   	    }
+  	}
+
+        $form['field_chapter_target_id'] = array(
+            '#type' => 'select',
+ 	    '#multiple' => 0,
+            '#options' => $options,
+            '#size' => $counter,
+            '#default_value' => $defaults,
+           );
+
+      // Get the list of business categories
+        $voc = taxonomy_vocabulary_machine_name_load('classification');
+        $taxonomyQuery = new EntityFieldQuery();
+        $taxonomyTerms = $taxonomyQuery
+                ->entityCondition('entity_type', 'taxonomy_term')
+                ->propertyCondition('vid', $voc->vid) // Classifications
+                ->execute();
+        foreach ($taxonomyTerms['taxonomy_term'] as $tid => $term) {
+          $tids[] = $term->tid;
+        }
+        $ary = taxonomy_term_load_multiple($tids);
+        $options = array();
+        foreach ($ary as $fields) {
+          if (strtolower($fields->name) <> 'none') {   
+            // Now, we need to see if the taxonomy term is on at least one active entity
+              $query = new EntityFieldQuery();
+              $query
+                 ->entityCondition('entity_type','user')
+                 ->propertyCondition('status',1)
+                 ->fieldCondition('field_status','tid',$config->field_status['und'],'IN')
+                 ->fieldCondition('field_classification','tid',$fields->tid,'=')
+                 ->count();
+            if ($query->execute()>0) {
+              $options[$fields->tid] = $fields->name;
+            }
+          }
+        }
+      $form['field_classification_tid'] = array(
+        '#type' => 'select',
+        '#multiple' => 'select',
+        '#options' => $options,
+        '#size' => 3,
+        '#default_value' => $options,
+      );
+    }
+
+  //-----------------------------------
   // Attendance views
   if ($form_id == 'views_exposed_form' && ($form['#action'] == '/attendance-summary-by-user' || $form['#action'] == '/attendance-detail')) {
     $config = attendance_get_config();
@@ -104,9 +181,12 @@ function club_base_get_chapter() {
   if (isset($node->field_chapter['und'][0]['target_id'])) {  // logged in user
     return $node->field_chapter['und'][0]['target_id'];
 
-  // else if the default chapter is set, return it
+  // else if the default chapter is set, return it; If the default chapter is set to "None", retrieve the defaults from the "no_chapter_defaults" variable
   } else {
     $chapter = variable_get('club_default_chapter');
+    if ($chapter == 'None') {
+	$chapter = variable_get('no_chapter_defaults');
+    }
     if (isset($chapter)) {
       return $chapter;
     }
