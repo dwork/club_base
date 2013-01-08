@@ -47,11 +47,15 @@ function attendance_tid_gettid ($vname, $name, $operator = '=') {
   if ($result) {
     $keys = array_keys($result['taxonomy_term']);
   } else {
-    drupal_set_message(t('Error: attendance_tid_gettid (includes): Taxonomy term not found -- vname: '. $vname .'; name: '.$name));
-    return '';
+    $keys = attendance_gettid($vname,$name);
+    if (!isset($keys)) {
+      drupal_set_message(t('Error: attendance_tid_gettid (includes): Taxonomy term not found -- vname: '. $vname .'; name: '.$name));
+      return '';
+    }
   }
   return $keys;
 }
+
 
 /**
   * attendance_set_date_filter ();
@@ -109,7 +113,7 @@ function attendance_accumulate ($uid, $type, $ary) {
 
   // If we're not counting makeups (e.g. if they're used to annotate other types of non-counting meetings), remove count from total
   if ($type == 'Total' && $config->field_makeupsallowed['und'][0]['value'] <> 'Yes') {
-    $tids = attendance_tid_gettid ('Attendance', 'Makeup');
+    $tids = attendance_gettid ('Attendance', 'Makeup');
     // Get the requested attendance records records.
     $query = new EntityFieldQuery;
     $query
