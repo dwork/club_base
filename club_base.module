@@ -4,13 +4,13 @@ require ('club_base.interface.inc');
 require ('club_base.functions.inc');
 
 // if attendance modules is installed
-if (module_exists(club_attendance)) {
+if (module_exists('club_attendance')) {
   require ('club_base.attendance.includes.inc');
   require ('club_base.attendance.functions.inc');
 }
 
 // if network module is installed
-if (module_exists(club_networking)) {
+if (module_exists('club_networking')) {
   require ('club_base.network.functions.inc');
 }
 
