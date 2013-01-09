@@ -87,10 +87,14 @@ function attendance_accumulate ($uid, $type, $ary) {
   $config = attendance_get_config();
   $user = user_load($uid);
   // Calculate beginning and ending months
+  $min = '2013-01-01';
+  $max = '2013-01-31';
   if (isset($ary['min']['year']) && isset($ary['min']['month']) && isset($ary['min']['day'])) {	// don't override
+    $min = $ary['min']['year'].'-'.$ary['min']['month'].'-'.$ary['min']['day'];
   } else {
   }
   if (isset($ary['max']['year']) && isset($ary['max']['month']) && isset($ary['max']['day'])) {	// don't override
+    $max = $ary['max']['year'].'-'.$ary['max']['month'].'-'.$ary['max']['day'];
   } else {
   }
 
@@ -108,6 +112,7 @@ function attendance_accumulate ($uid, $type, $ary) {
         ->entityCondition('bundle', 'attendance')
         ->fieldCondition('field_uid','target_id',$uid)
         ->fieldCondition('field_attendance','tid', array($tids), 'IN')
+ 	->fieldCondition('field_date','value',array($min,$max),'BETWEEN') 
         ->count();
   $totalcount = $query->execute();
 
@@ -121,6 +126,7 @@ function attendance_accumulate ($uid, $type, $ary) {
         ->entityCondition('bundle', 'attendance')
         ->fieldCondition('field_uid','target_id',$uid)
         ->fieldCondition('field_attendance','tid', array($tids), 'IN')
+ 	->fieldCondition('field_date','value',array($min,$max),'BETWEEN') 
         ->count();
     $makeups = $query->execute();
     $totalcount = $totalcount - $makeups;
