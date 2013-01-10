@@ -91,7 +91,16 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
 
   //-----------------------------------
   // Attendance views
-  if ($form_id == 'views_exposed_form' && ($form['#action'] == '/attendance-summary-by-user' || $form['#action'] == '/attendance-detail' || $form['#action'] == '/attendance-editable' || $form['#action'] == '/referral-report')) {
+  if ($form_id == 'views_exposed_form' && (
+	$form['#action'] == '/attendance-summary-by-user' || 
+	$form['#action'] == '/attendance-detail' || 
+	$form['#action'] == '/attendance-editable' || 
+	$form['#action'] == '/referral-report' ||
+	$form['#action'] == '/referral-details-by-referring' ||'
+	$form['#action'] == '/referral-report-by-referred' ||
+	$form['#action'] == '/closed-business-by-referring' ||
+	$form['#action'] == '/closed-business-by-referred'
+	)) {
     $config = attendance_get_config();
     if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
       $form_state['input']['field_date_value']['min']['year'] = substr($config->field_policy_date_range['und'][0]['value'],0,4);
