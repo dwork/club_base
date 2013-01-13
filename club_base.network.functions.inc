@@ -67,7 +67,7 @@ function network_accumulate ($uid, $type, $ary) {
       foreach ($nodes as $node) {
         $value = $value + $node->field_value['und'][0]['value'];
       }
-      count(array_keys($result['node']));
+      $count = count(array_keys($result['node']));
     }
     return array($count,$value);
   } else {

@@ -87,13 +87,15 @@ function attendance_accumulate ($uid, $type, $ary) {
   $config = attendance_get_config();
   $user = user_load($uid);
   // Calculate beginning and ending months
-  if (isset($ary['field_date_value']['min']['year']) && isset($ary['field_date_value']['min']['month']) && isset($ary['field_date_value']['min']['day'])) {	// don't override
+  if (isset($ary['field_date_value']['min']['year']) && isset($ary['field_date_value']['min']['month']) && isset($ary['field_date_value']['min']['day'])) { // don't override
     $min = $ary['field_date_value']['min']['year'].'-'.$ary['field_date_value']['min']['month'].'-'.$ary['field_date_value']['min']['day'];
   } else {
+    $min = substr($config->field_policy_date_range['und'][0]['value'],0,10);
   }
-  if (isset($ary['field_date_value']['max']['year']) && isset($ary['field_date_value']['max']['month']) && isset($ary['field_date_value']['max']['day'])) {	// don't override
+  if (isset($ary['field_date_value']['max']['year']) && isset($ary['field_date_value']['max']['month']) && isset($ary['field_date_value']['max']['day'])) { // don't override
     $max = $ary['field_date_value']['max']['year'].'-'.$ary['field_date_value']['max']['month'].'-'.$ary['field_date_value']['max']['day'];
   } else {
+    $max = substr($config->field_policy_date_range['und'][0]['value2'],0,10);
   }
 
   // if other than "Total", get the TID for this query
