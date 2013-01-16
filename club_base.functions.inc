@@ -17,7 +17,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
     if ($form_id == 'views_exposed_form' && (
           $form['#action'] == '/clubmembers' ||
           substr($form['#action'],0,11) == '/pcalendar/' ||
-          $form['#action'] == '/calendar'
+          substr($form['#action'],0,10) == '/calendar/'
         )) {
 
 
