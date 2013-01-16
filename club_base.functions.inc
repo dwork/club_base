@@ -14,7 +14,12 @@
   */
 function club_base_form_alter(&$form, &$form_state, $form_id) {
   // Club views
-    if ($form_id == 'views_exposed_form' && ($form['#action'] == '/clubmembers')) {
+    if ($form_id == 'views_exposed_form' && (
+          $form['#action'] == '/clubmembers' ||
+          $form['#action'] == '/pcalendar' ||
+          $form['#action'] == '/calendar'
+        )) {
+
 
       // Get the attendance config for status inclusions (used to determine which classifications are loaded)
 	$config = attendance_get_config();
