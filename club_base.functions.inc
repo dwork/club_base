@@ -16,7 +16,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
   // Club views
     if ($form_id == 'views_exposed_form' && (
           $form['#action'] == '/clubmembers' ||
-          $form['#action'] == '/pcalendar' ||
+          substr($form['#action'],0,11) == '/pcalendar/' ||
           $form['#action'] == '/calendar'
         )) {
 
@@ -58,6 +58,8 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
             '#default_value' => $defaults,
            );
 
+    if ($form['#action'] == '/clubmembers') {
+
       // Get the list of business categories
         $voc = taxonomy_vocabulary_machine_name_load('classification');
         $taxonomyQuery = new EntityFieldQuery();
@@ -93,6 +95,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
         '#default_value' => $options,
       );
     }
+  }
 
   //-----------------------------------
   // Attendance views
