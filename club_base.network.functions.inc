@@ -49,6 +49,10 @@ function network_accumulate ($uid, $type, $ary) {
     $fielduid = 'field_referred_member';
     $file = 'business_exchange';
     break;
+  case 'M2M':
+    $fielduid = 'field_members';
+    $file = 'm2m';
+    break;
   }
   // Get the requested attendance records records. 
   $query = new EntityFieldQuery;

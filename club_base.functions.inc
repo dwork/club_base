@@ -72,6 +72,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
         }
         $ary = taxonomy_term_load_multiple($tids);
         $options = array();
+        $options[] = '--All--';
         foreach ($ary as $fields) {
           if (strtolower($fields->name) <> 'none') {   
             // Now, we need to see if the taxonomy term is on at least one active entity
@@ -103,6 +104,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
 	$form['#action'] == '/attendance-summary-by-user' || 
 	$form['#action'] == '/attendance-detail' || 
 	$form['#action'] == '/attendance-editable' || 
+	$form['#action'] == '/membership-dues' || 
 	$form['#action'] == '/referral-report' ||
 	$form['#action'] == '/referrals' ||
 	$form['#action'] == '/referral-details-by-referring' ||
@@ -110,32 +112,25 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
 	$form['#action'] == '/closed-business-by-referring' ||
 	$form['#action'] == '/closed-business-by-referred'
 	)) {
-    $config = attendance_get_config();
+
+    if ($form['#action'] == '/membership-dues') {
+	$config = membership_get_config();
+    } else {
+        $config = attendance_get_config();
+    }
     if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
       $form_state['input']['field_date_value']['min']['year'] = substr($config->field_policy_date_range['und'][0]['value'],0,4);
-      if (substr($config->field_policy_date_range['und'][0]['value'],5,1) == '0') {
-        $form_state['input']['field_date_value']['min']['month'] = substr($config->field_policy_date_range['und'][0]['value'],6,1);
-      } else {
-        $form_state['input']['field_date_value']['min']['month'] = substr($config->field_policy_date_range['und'][0]['value'],5,2);
-      }
-      if (substr($config->field_policy_date_range['und'][0]['value'],8,1) == '0') {
-        $form_state['input']['field_date_value']['min']['day'] = substr($config->field_policy_date_range['und'][0]['value'],9,1);
-      } else {
-        $form_state['input']['field_date_value']['min']['day'] = substr($config->field_policy_date_range['und'][0]['value'],8,2);
-      }
+      $rem = explode('-',substr($config->field_policy_date_range['und'][0]['value'],5));
+      $form_state['input']['field_date_value']['min']['month'] = $rem[0]*1;
+      $rem = explode(' ',$rem[1]);
+      $form_state['input']['field_date_value']['min']['day'] = $rem[0]*1;
     }
     if (empty($_GET['field_date_value']['max']['year']) && empty($_GET['field_date_value']['max']['month']) && empty($GET['field_date_value']['max']['day']))  {
       $form_state['input']['field_date_value']['max']['year'] = substr($config->field_policy_date_range['und'][0]['value2'],0,4);
-      if (substr($config->field_policy_date_range['und'][0]['value2'],5,1) == '0') {
-        $form_state['input']['field_date_value']['max']['month'] = substr($config->field_policy_date_range['und'][0]['value2'],6,1);
-      } else {
-        $form_state['input']['field_date_value']['max']['month'] = substr($config->field_policy_date_range['und'][0]['value2'],5,2);
-      }
-      if (substr($config->field_policy_date_range['und'][0]['value2'],9,1) == '0') {
-        $form_state['input']['field_date_value']['max']['day'] = substr($config->field_policy_date_range['und'][0]['value2'],9,1);
-      } else {
-        $form_state['input']['field_date_value']['max']['day'] = substr($config->field_policy_date_range['und'][0]['value2'],8,2);
-      }
+      $rem = explode('-',substr($config->field_policy_date_range['und'][0]['value2'],5));
+      $form_state['input']['field_date_value']['max']['month'] = $rem[0]*1;
+      $rem = explode(' ',$rem[1]);
+      $form_state['input']['field_date_value']['max']['day'] = $rem[0]*1;
     }
   }
 }

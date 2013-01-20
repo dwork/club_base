@@ -14,6 +14,11 @@ if (module_exists('club_networking')) {
   require ('club_base.network.functions.inc');
 }
 
+// if membership module is installed
+//if (module_exists('club_membership')) {
+  require ('club_base.membership.functions.inc');
+//}
+
 /**
  * @file
  * Implements interface from Club Membership using Cron
