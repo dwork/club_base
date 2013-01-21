@@ -30,4 +30,22 @@ exit;
   }
 }
 
+function membership_gettid ($vname, $name) {
+
+  $voc = taxonomy_vocabulary_machine_name_load($vname);
+  $query = new EntityFieldQuery;
+  $result = $query
+  ->entityCondition('entity_type', 'taxonomy_term')
+  ->propertyCondition('name', $name)
+  ->propertyCondition('vid', $voc->vid)
+  ->execute();
+  if ($result) {
+    $keys = array_keys($result['taxonomy_term']);
+  } else {
+    drupal_set_message(t('Error: membership_gettid (includes): Taxonomy term not found -- vname: '. $vname .'; name: '.$name));
+    return '';
+  }
+  return $keys[0];
+}
+
 ?>
