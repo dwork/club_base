@@ -106,6 +106,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
 	$form['#action'] == '/attendance-editable' || 
 	$form['#action'] == '/membership-dues' || 
 	$form['#action'] == '/dues-register' || 
+	$form['#action'] == '/notification-log' || 
 	$form['#action'] == '/referral-report' ||
 	$form['#action'] == '/referrals' ||
 	$form['#action'] == '/referral-details-by-referring' ||
