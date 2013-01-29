@@ -16,6 +16,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
   // Club views
     if ($form_id == 'views_exposed_form' && (
           $form['#action'] == '/clubmembers' ||
+          $form['#action'] == '/clubofficers' ||
           substr($form['#action'],0,11) == '/pcalendar/' ||
           substr($form['#action'],0,10) == '/calendar/'
         )) {
@@ -104,7 +105,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
 	$form['#action'] == '/attendance-summary-by-user' || 
 	$form['#action'] == '/attendance-detail' || 
 	$form['#action'] == '/attendance-editable' || 
-	$form['#action'] == '/membership-dues' || 
+	$form['#action'] == '/dues' || 
 	$form['#action'] == '/dues-register' || 
 	$form['#action'] == '/notification-log' || 
 	$form['#action'] == '/referral-report' ||

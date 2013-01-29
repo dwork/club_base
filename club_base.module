@@ -14,10 +14,11 @@ if (module_exists('club_networking')) {
   require ('club_base.network.functions.inc');
 }
 
-// if membership module is installed
-//if (module_exists('club_membership')) {
-  require ('club_base.membership.functions.inc');
-//}
+// if dues module is installed
+// if (module_exists('club_dues')) {
+  require ('club_base.dues.functions.inc');
+  require ('club_base.dues.interface.inc');
+// }
 
 /**
  * @file
@@ -216,6 +217,9 @@ function club_base_cron() {
     // It just makes it obvious that the job has run without
     // making any changes to your database.
     club_base_interface();
+    // if (module_exists('club_dues')) {
+    	club_base_dues_interface();
+    // }
     watchdog('club_base', 'club_base interface ran');
     if (!empty($GLOBALS['club_base_show_status_message'])) {
       drupal_set_message(t('club_base executed at %time', array('%time' => date_iso8601(time(0)))));
@@ -223,61 +227,3 @@ function club_base_cron() {
     variable_set('club_base_next_execution', time() + $interval);
   }
 }
-
-
-/**
- * Implements hook_cron_queue_info().
- *
- * hook_cron_queue_info() and family are new since Drupal 7, and allow any
- * process to add work to the queue to be acted on when cron runs. Queues are
- * described and worker callbacks are provided, and then only the worker
- * callback needs to be implemented.
- *
- * All the details of queue use are done by the cron_queue implementation, so
- * one doesn't need to know much about DrupalQueue().
- *
- * @see queue_example.module
- */
-function club_base_cron_queue_info() {
-  $queues['club_base_queue_1'] = array(
-    'worker callback' => 'club_base_queue_1_worker',
-    'time' => 1, // One second max runtime per cron run.
-  );
-  $queues['club_base_queue_2'] = array(
-    'worker callback' => 'club_base_queue_2_worker',
-    'time' => 10,
-  );
-  return $queues;
-}
-
-/**
- * Simple workers for the two queues.
- *
- * @param $item
- *   Any object to be worked on.
- */
-function club_base_queue_1_worker($item) {
-  club_base_queue_report_work(1, $item);
-}
-function club_base_queue_2_worker($item) {
-  club_base_queue_report_work(2, $item);
-}
-
-/**
- * Simple reporter for the workers.
- *
- * @param $worker
- *   (integer) worker number
- * @param $item
- *   (object) the $item which was stored in the cron queue.
- */
-function club_base_queue_report_work($worker, $item) {
-  if (!empty($GLOBALS['club_base_show_status_message'])) {
-    drupal_set_message(t('Queue @worker worker processed item with sequence @sequence created at @time', array('@worker' => $worker, '@sequence' => $item->sequence, '@time' => date_iso8601($item->created))));
-  }
-  watchdog('club_base', 'Queue @worker worker processed item with sequence @sequence created at @time', array('@worker' => $worker, '@sequence' => $item->sequence, '@time' => date_iso8601($item->created)));
-}
-
-/**
- * @} End of "defgroup club_base".
- */
