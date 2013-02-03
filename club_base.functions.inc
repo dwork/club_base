@@ -18,7 +18,8 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
           $form['#action'] == '/clubmembers' ||
           $form['#action'] == '/clubofficers' ||
           substr($form['#action'],0,11) == '/pcalendar/' ||
-          substr($form['#action'],0,10) == '/calendar/'
+          substr($form['#action'],0,10) == '/calendar/' ||
+          substr($form['#action'],0,10) == '/calendar-'
         )) {
 
 
