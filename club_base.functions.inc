@@ -106,6 +106,7 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
 	$form['#action'] == '/attendance-summary-by-user' || 
 	$form['#action'] == '/attendance-detail' || 
 	$form['#action'] == '/attendance-editable' || 
+	$form['#action'] == '/calendar-speakers' || 
 	$form['#action'] == '/dues' || 
 	$form['#action'] == '/dues-register' || 
 	$form['#action'] == '/notification-log' || 
@@ -122,12 +123,22 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
     } else {
         $config = attendance_get_config();
     }
-    if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
-      $form_state['input']['field_date_value']['min']['year'] = substr($config->field_policy_date_range['und'][0]['value'],0,4);
-      $rem = explode('-',substr($config->field_policy_date_range['und'][0]['value'],5));
-      $form_state['input']['field_date_value']['min']['month'] = $rem[0]*1;
-      $rem = explode(' ',$rem[1]);
-      $form_state['input']['field_date_value']['min']['day'] = $rem[0]*1;
+
+    // Certain forms - set min date to today. Otherwise, set to the value in the appropriate config record
+    if ($form['#action'] == '/calendar-speakers') {
+    	if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
+      		$form_state['input']['field_date_value']['min']['year'] = date('Y');
+      		$form_state['input']['field_date_value']['min']['month'] = date('m');
+      		$form_state['input']['field_date_value']['min']['day'] = date('d')'
+   	}
+    } else {
+    	if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
+      		$form_state['input']['field_date_value']['min']['year'] = substr($config->field_policy_date_range['und'][0]['value'],0,4);
+      		$rem = explode('-',substr($config->field_policy_date_range['und'][0]['value'],5));
+      		$form_state['input']['field_date_value']['min']['month'] = $rem[0]*1;
+      		$rem = explode(' ',$rem[1]);
+      		$form_state['input']['field_date_value']['min']['day'] = $rem[0]*1;
+   	}
     }
     if (empty($_GET['field_date_value']['max']['year']) && empty($_GET['field_date_value']['max']['month']) && empty($GET['field_date_value']['max']['day']))  {
       $form_state['input']['field_date_value']['max']['year'] = substr($config->field_policy_date_range['und'][0]['value2'],0,4);
