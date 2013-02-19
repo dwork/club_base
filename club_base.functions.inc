@@ -128,8 +128,8 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
     if ($form['#action'] == '/calendar-speakers') {
     	if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
       		$form_state['input']['field_date_value']['min']['year'] = date('Y');
-      		$form_state['input']['field_date_value']['min']['month'] = date('m');
-      		$form_state['input']['field_date_value']['min']['day'] = date('d')'
+      		$form_state['input']['field_date_value']['min']['month'] = date('n');
+      		$form_state['input']['field_date_value']['min']['day'] = date('j');
    	}
     } else {
     	if (empty($_GET['field_date_value']['min']['year']) && empty($_GET['field_date_value']['min']['month']) && empty($GET['field_date_value']['min']['day']))  {
