@@ -74,7 +74,6 @@ function club_base_form_alter(&$form, &$form_state, $form_id) {
         }
         $ary = taxonomy_term_load_multiple($tids);
         $options = array();
-        $options[] = '--All--';
         foreach ($ary as $fields) {
           if (strtolower($fields->name) <> 'none') {   
             // Now, we need to see if the taxonomy term is on at least one active entity
